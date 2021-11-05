@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/Omared250/cyf-ecommerce-api#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "pg": "^8.7.1"
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
