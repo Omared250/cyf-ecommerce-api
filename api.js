@@ -54,13 +54,34 @@ const api = () => {
         const response = {customerId : result.rows[0].id}
         return await res.json(response);
     }
+
+    const addNewProduct = async (req, res) => {
+        const productBody = req.body;
+        const newProduct = `insert into products (product_name, unit_price, supplier_id) 
+        values ($1, $2, $3) returning id`;
+
+        const supplierExists = await connection.query('select * from suppliers where id=$1', [productBody.supplier_id]);
+        if (supplierExists.rows.length <= 0 || !Number.isInteger(productBody.unit_price)) {
+            return res.status(400).json({message : "The current product is not valid"});
+        }
+
+        const result = await connection.query(newProduct, [
+            productBody.product_name,
+            productBody.unit_price,
+            productBody.supplier_id
+        ])
+        const response = {productId : result.rows[0].id};
+        return await res.json(response);
+
+    }
     
     return {
         getAllCustomers,
         getCustomerById,
         getAllSuppliers,
         getAllproducts,
-        addNewCustomer
+        addNewCustomer,
+        addNewProduct
     }
 }
 
