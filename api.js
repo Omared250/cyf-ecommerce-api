@@ -61,7 +61,7 @@ const api = () => {
         values ($1, $2, $3) returning id`;
 
         const supplierExists = await connection.query('select * from suppliers where id=$1', [productBody.supplier_id]);
-        if (supplierExists.rows.length <= 0 || !Number.isInteger(productBody.unit_price)) {
+        if (supplierExists.rows.length <= 0 || !Number.isInteger(productBody.unit_price) || productBody.unit_price === 0) {
             return res.status(400).json({message : "The current product is not valid"});
         }
 
