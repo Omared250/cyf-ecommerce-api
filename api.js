@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const secret = require('./secret.json');
+const secret = require('./secrets.json');
 const connection = new Pool(secret);
 
 const api = () => {
