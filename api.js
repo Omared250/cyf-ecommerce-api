@@ -11,8 +11,11 @@ const api = () => {
 
     const getCustomerById = async (req, res) => {
         const customerId = req.params.customerId;
-        const query = "select * from customers where id=$1";
         
+        const query = "select * from customers where id=$1";
+
+        const result = await connection.query(query, [customerId]);
+        return await res.json(result.rows)
     }
     
     const getAllSuppliers = (req, res) => {
@@ -35,6 +38,7 @@ const api = () => {
     
     return {
         getAllCustomers,
+        getCustomerById,
         getAllSuppliers,
         getAllproducts
     }

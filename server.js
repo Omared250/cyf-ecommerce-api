@@ -6,6 +6,7 @@ const api = apiFunction();
 
 app.use(express.json());
 app.get("/customers", api.getAllCustomers);
+app.get("/customers/:customerId", api.getCustomerById);
 app.get("/suppliers", api.getAllSuppliers);
 app.get("/products/", api.getAllproducts);
 
