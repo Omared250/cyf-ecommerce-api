@@ -11,7 +11,7 @@ const api = () => {
 
     const getCustomerById = async (req, res) => {
         const customerId = req.params.customerId;
-        
+
         const query = "select * from customers where id=$1";
 
         const result = await connection.query(query, [customerId]);
@@ -35,12 +35,32 @@ const api = () => {
             return res.json(allproducts.rows);
         }
     }
+
+    const addNewCustomer = async (req, res) => {
+        const customerBody = req.body;
+        const query = 'insert into customers (name, address, city, country) values ($1, $2, $3, $4) returning id'
+
+        const itExist = await connection.query('select * from customers where name=$1', [customerBody.name]);
+        if (itExist.rows.length > 0) {
+            return res.status(400).json({message : "The customer already exists!!"})
+        }
+
+        const result = await connection.query(query, [
+            customerBody.name,
+            customerBody.address,
+            customerBody.city,
+            customerBody.country
+        ])
+        const response = {customerId : result.rows[0].id}
+        return await res.json(response);
+    }
     
     return {
         getAllCustomers,
         getCustomerById,
         getAllSuppliers,
-        getAllproducts
+        getAllproducts,
+        addNewCustomer
     }
 }
 
