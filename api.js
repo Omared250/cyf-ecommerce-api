@@ -41,6 +41,21 @@ const api = () => {
         return res.json(result.rows);
     }
 
+    const getOrdersInfoByCustomerId = async (req, res) => {
+        const customerId = req.params.customerId;
+
+        const query = `select o.order_reference, o.order_date, p.product_name, p.unit_price, s.supplier_name,
+        oi.quantity 
+        from orders o 
+        inner join order_items oi on oi.order_id=o.id
+        inner join products p on p.id=oi.product_id 
+        inner join suppliers s on s.id=p.supplier_id
+        where o.customer_id=$1;`;
+
+        const result = await connection.query(query, [customerId]);
+        return await res.status(200).json(result.rows);
+    }
+
     const addNewCustomer = async (req, res) => {
         const customerBody = req.body;
         const query = 'insert into customers (name, address, city, country) values ($1, $2, $3, $4) returning id'
@@ -183,6 +198,7 @@ const api = () => {
         getCustomerById,
         getAllSuppliers,
         getAllproducts,
+        getOrdersInfoByCustomerId,
         addNewCustomer,
         addNewProduct,
         addNewOrder,

@@ -182,3 +182,16 @@ inner join orders o on o.id=oi.order_id
 inner join customers c on c.id=o.customer_id
 inner join suppliers s on s.id=p.supplier_id
 where s.country='China';
+
+select
+	o.order_reference,
+	o.order_date,
+	p.product_name,
+	p.unit_price,
+	s.supplier_name,
+	oi.quantity 
+from orders o 
+inner join order_items oi on oi.order_id=o.id
+inner join products p on p.id=oi.product_id 
+inner join suppliers s on s.id=p.supplier_id
+where o.customer_id=1;

@@ -9,6 +9,7 @@ app.get("/customers", api.getAllCustomers);
 app.get("/customers/:customerId", api.getCustomerById);
 app.get("/suppliers", api.getAllSuppliers);
 app.get("/products/", api.getAllproducts);
+app.get("/customers/:customerId/orders", api.getOrdersInfoByCustomerId);
 app.post("/customers", api.addNewCustomer);
 app.post("/products", api.addNewProduct);
 app.post("/customers/:customerId/orders", api.addNewOrder);
