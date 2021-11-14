@@ -13,6 +13,8 @@ app.post("/customers", api.addNewCustomer);
 app.post("/products", api.addNewProduct);
 app.post("/customers/:customerId/orders", api.addNewOrder);
 app.put("/customers/:customerId", api.updateCustomer);
+app.delete("/orders/:orderId", api.deleteOrder);
+app.delete("/customers/:customerId", api.deleteCustomer);
 
 const port = 4000;
 app.listen(port, () => {

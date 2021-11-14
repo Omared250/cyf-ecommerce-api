@@ -141,6 +141,42 @@ const api = () => {
             "country" : customerBody.country
         });
     }
+
+    const orderIdIsOk = async (orderId) => {
+        const result = await connection.query('select * from orders where id=$1', [orderId]);
+        return result.rows.length > 0 && Number.isInteger(orderId) && orderId > 0;
+    }
+
+    const deleteOrder = async (req, res) => {
+        const orderId = req.params.orderId;
+
+
+        if (!orderIdIsOk(orderId)) {
+            return res.status(400).json({message : "The order Id is not valid!!"})
+        }
+
+        const deleteOrderItem = 'delete from order_items where order_id=$1';
+        await connection.query(deleteOrderItem, [orderId])
+
+        const deleteOrder = 'delete from orders where id=$1';
+        await connection.query(deleteOrder, [orderId]);
+
+        res.status(200).json({message : "The order and the order item have been deleted!!!"})
+    }
+
+    const deleteCustomer = async (req, res) => {
+        const customerId = req.params.customerId;
+        
+        const orderQuery = `select * from orders where customer_id=$1`;
+        const getOrder = await connection.query(orderQuery, [customerId]);
+
+        if (!getOrder) {
+            return res.status(400).json({message : "The customer cannot be deleted!!"})
+        } else {
+            await connection.query(`delete from customers where id=$1`, [customerId]);
+            return await res.send("The customer have been deleted");
+        }
+    }
     
     return {
         getAllCustomers,
@@ -150,7 +186,9 @@ const api = () => {
         addNewCustomer,
         addNewProduct,
         addNewOrder,
-        updateCustomer
+        updateCustomer,
+        deleteOrder,
+        deleteCustomer
     }
 }
 
