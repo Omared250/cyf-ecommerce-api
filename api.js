@@ -88,6 +88,30 @@ const api = () => {
         const response = {productId : result.rows[0].id};
         return await res.json(response);
     }
+
+    const orderIsOk = (order) => {
+        return order.order_date === '' || order.order_reference === '';
+    }
+
+    const addNewOrder = async (req, res) => {
+        const customerId = req.params.customerId;
+        const orderBody = req.body;
+
+        const itExists = await connection.query('select * from customers where id=$1', [customerId]);
+        if (itExists.rows.length === 0) {
+            return res.json({message : "The customer does not exists!"})
+        }
+
+        if (orderIsOk(orderBody)) {
+            return res.json({rules : ['The order need a date', 'The order need a reference']})
+        }
+
+        const newOrder = `insert into orders (order_date, order_reference, customer_id) 
+        values ($1, $2, $3) returning id`
+        const result = await connection.query(newOrder, [orderBody.order_date, orderBody.order_reference, customerId]);
+        const response = {orderId : result.rows[0].id};
+        return await res.json(response); 
+    }
     
     return {
         getAllCustomers,
@@ -95,7 +119,8 @@ const api = () => {
         getAllSuppliers,
         getAllproducts,
         addNewCustomer,
-        addNewProduct
+        addNewProduct,
+        addNewOrder
     }
 }
 
