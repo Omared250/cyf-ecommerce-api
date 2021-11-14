@@ -26,14 +26,19 @@ const api = () => {
     
     const getAllproducts = async (req, res) => {
         const productName = req.query.productName;
-        const query = "select * from products where product_name like '%$1%'"
+        let query = 'select * from products order by id';
+
         if (productName) {
-            const result = await connection.query(query, [productName]);
-            return await res.json(result.rows);
-        } else {
-            const allproducts = await connection.query('select * from products order by id');
-            return res.json(allproducts.rows);
+            query = `select * from products where product_name like '%${productName}%'`
         }
+
+        const result = await connection.query(query);
+
+        if (result.rows.length === 0) {
+            return res.json({message : "The product does not exists!!"})
+        }
+
+        return res.json(result.rows);
     }
 
     const addNewCustomer = async (req, res) => {
@@ -55,15 +60,25 @@ const api = () => {
         return await res.json(response);
     }
 
+    const getBadRequestProductResponse = () => {
+        return {message : "The current product is not valid",
+                rules : ["The supplier must exists", "The unit price must be a positive number"]}
+    }
+
+    const productIsOk = async (product) => {
+        const result = await connection.query('select * from suppliers where id=$1', [product.supplier_id]);
+        return Number.isInteger(product.unit_price) && result.rows.length === 1 && product.unit_price > 0;
+    }
+
     const addNewProduct = async (req, res) => {
         const productBody = req.body;
+
+        if (!await productIsOk(productBody)) {
+            return res.status(400).json(getBadRequestProductResponse());
+        } 
+
         const newProduct = `insert into products (product_name, unit_price, supplier_id) 
         values ($1, $2, $3) returning id`;
-
-        const supplierExists = await connection.query('select * from suppliers where id=$1', [productBody.supplier_id]);
-        if (supplierExists.rows.length <= 0 || !Number.isInteger(productBody.unit_price) || productBody.unit_price === 0) {
-            return res.status(400).json({message : "The current product is not valid"});
-        }
 
         const result = await connection.query(newProduct, [
             productBody.product_name,
@@ -72,7 +87,6 @@ const api = () => {
         ])
         const response = {productId : result.rows[0].id};
         return await res.json(response);
-
     }
     
     return {
