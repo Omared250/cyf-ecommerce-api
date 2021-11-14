@@ -12,6 +12,7 @@ app.get("/products/", api.getAllproducts);
 app.post("/customers", api.addNewCustomer);
 app.post("/products", api.addNewProduct);
 app.post("/customers/:customerId/orders", api.addNewOrder);
+app.put("/customers/:customerId", api.updateCustomer);
 
 const port = 4000;
 app.listen(port, () => {

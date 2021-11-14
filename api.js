@@ -103,7 +103,7 @@ const api = () => {
         }
 
         if (orderIsOk(orderBody)) {
-            return res.json({rules : ['The order need a date', 'The order need a reference']})
+            return res.json({rules : ['The order needs a date', 'The order needs a reference']})
         }
 
         const newOrder = `insert into orders (order_date, order_reference, customer_id) 
@@ -111,6 +111,35 @@ const api = () => {
         const result = await connection.query(newOrder, [orderBody.order_date, orderBody.order_reference, customerId]);
         const response = {orderId : result.rows[0].id};
         return await res.json(response); 
+    }
+
+    const customerIsOk = (customer) => {
+        return customer.name === '' || customer.address === '' || customer.city === '' || customer.country === '';
+    }
+
+    const updateCustomer = async (req, res) => {
+        const customerId = req.params.customerId;
+        const customerBody = req.body;
+
+        const customerExists = await connection.query('select * from customers where id=$1', [customerId]);
+        if (customerExists.rows.length === 0) {
+            return res.status(400).json({message : "The customer does not exists!!!"});
+        }
+
+        if (customerIsOk(customerBody)) {
+            return res.status(400).json({rules : ['The customer need a name', 'The customer need a address', 'The customer needs a city', 'The customer needs a country']})
+        }
+
+        const result = await connection.query(`update customers set name=$1, address=$2, 
+        city=$3, country=$4 where id=$5 returning id`, [customerBody.name, customerBody.address, customerBody.city, customerBody.country, customerId]);
+
+        return await res.json({
+            "customer_id" : result.rows[0].id,
+            "name" : customerBody.name,
+            "address" : customerBody.address,
+            "city" : customerBody.city,
+            "country" : customerBody.country
+        });
     }
     
     return {
@@ -120,7 +149,8 @@ const api = () => {
         getAllproducts,
         addNewCustomer,
         addNewProduct,
-        addNewOrder
+        addNewOrder,
+        updateCustomer
     }
 }
 
